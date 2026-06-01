@@ -1,0 +1,419 @@
+<!--
+  MycoNet - Dashboard de Controle em Terra | PINK CODE - GS 2026
+  Autoras:
+  Lara Mofid Essa Alssabak - RM567947
+  Maria Luisa Boucinhas Franco - RM567355
+  Maria Luiza Kochnoff da Matta - RM568459
+  Roberta Moreira dos Santos - RM567825
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a2e; --bg2:#0E155E;
+    --lav:#CAA9F3; --orchid:#B37AD4; --peri:#7997E6; --blue:#206ABC; --navy:#0E155E;
+    --accent:#B37AD4;
+    --ok:#7997E6; --warn:#ffb454; --danger:#ff5d6c; --off:#3a4570;
+    --txt:#e7e3fb; --mut:#8b93c4;
+    --border:rgba(122,151,230,.18); --panel:rgba(122,151,230,.05);
+    --mono:'Space Mono',monospace; --ui:'Chakra Petch',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:var(--ui);overflow-x:hidden;
+    background-image:radial-gradient(circle at 20% 10%,rgba(179,122,212,.10),transparent 42%),
+                     radial-gradient(circle at 85% 90%,rgba(32,106,188,.10),transparent 45%);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand h1{font-size:26px;letter-spacing:3px;font-weight:700}
+  .brand h1 b{color:var(--lav)}
+  .brand .sub{font-size:11px;letter-spacing:3px;color:var(--mut);text-transform:uppercase}
+  .stat-row{display:flex;gap:18px;flex-wrap:wrap}
+  .stat{font-family:var(--mono);font-size:12px;color:var(--mut)}
+  .stat b{display:block;font-size:16px;color:var(--txt);letter-spacing:1px}
+  .stat b.live{color:var(--peri)}
+  .badge{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--lav);
+    border:1px solid var(--border);border-radius:20px;padding:5px 12px;align-self:center;background:rgba(202,169,243,.08)}
+  .grid{display:grid;grid-template-columns:1.45fr .95fr;gap:16px}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;backdrop-filter:blur(4px)}
+  .card h2{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  canvas#net{width:100%;height:360px;display:block}
+  .modlist{display:flex;flex-direction:column;gap:8px}
+  .mod{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:.15s;background:rgba(255,255,255,.015)}
+  .mod:hover{border-color:var(--border)}
+  .mod.sel{border-color:var(--accent);background:rgba(179,122,212,.10)}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 8px currentColor}
+  .mod .nm{flex:1;font-weight:500;letter-spacing:1px}
+  .mod .mini{font-family:var(--mono);font-size:11px;color:var(--mut)}
+  .tag{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px}
+  .gauges{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .g{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:10px}
+  .g .lab{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+  .g .val{font-family:var(--mono);font-size:22px;margin-top:3px}
+  .g .val small{font-size:12px;color:var(--mut)}
+  .bar{height:4px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:3px;transition:.4s}
+  .row2{display:grid;grid-template-columns:1.45fr .95fr;gap:16px;margin-top:16px}
+  @media(max-width:880px){.row2{grid-template-columns:1fr}}
+  canvas#hist{width:100%;height:170px;display:block}
+  .chip{font-family:var(--mono);font-size:10px;color:var(--mut);border:1px solid var(--border);padding:3px 8px;border-radius:6px;cursor:pointer}
+  .chip.on{color:var(--bg);background:var(--accent);border-color:var(--accent)}
+  .log{font-family:var(--mono);font-size:11px;line-height:1.7;max-height:170px;overflow:auto}
+  .log .t{color:var(--mut)}
+  .log .ok{color:var(--peri)} .log .warn{color:var(--warn)} .log .err{color:var(--danger)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  button{font-family:var(--ui);font-size:12px;letter-spacing:1px;color:var(--txt);cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:8px 12px;transition:.15s}
+  button:hover{border-color:var(--accent);color:var(--lav)}
+</style>
+
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>MYCO<b>NET</b></h1><span class="sub">Controle em Terra · Colonia</span></div>
+    <div class="stat-row">
+      <div class="stat">Missao<b id="clk">00:00:00</b></div>
+      <div class="stat">Delay Terra<b id="delay">12m 04s</b></div>
+      <div class="stat">Rede<b class="live" id="kpi">5/5 nos</b></div>
+      <div class="badge" id="mode">simulacao</div>
+    </div>
+  </header>
+  <div class="grid">
+    <div class="card">
+      <h2>Rede de Miceliio <span class="stat" style="font-size:10px">conv. alvo 500 ms</span></h2>
+      <canvas id="net"></canvas>
+    </div>
+    <div class="card">
+      <h2>Modulos</h2>
+      <div class="modlist" id="modlist"></div>
+      <div style="margin-top:14px"><h2 id="detailName">Detalhe</h2><div class="gauges" id="gauges"></div></div>
+      <div class="controls">
+        <button onclick="toggleFail()">Simular falha</button>
+        <button onclick="spikeGas()">Forcar anomalia (gas)</button>
+      </div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="card">
+      <h2>Historico
+        <span>
+          <span class="chip on" data-p="temp" onclick="pickParam(this)">TEMP</span>
+          <span class="chip" data-p="hum" onclick="pickParam(this)">UMID</span>
+          <span class="chip" data-p="luz" onclick="pickParam(this)">LUZ</span>
+          <span class="chip" data-p="gas" onclick="pickParam(this)">GAS</span>
+        </span>
+      </h2>
+      <canvas id="hist"></canvas>
+    </div>
+    <div class="card"><h2>Log de eventos</h2><div class="log" id="log"></div></div>
+  </div>
+</div>
+
+<script>
+// ======================================================
+// CONFIGURAÇÕES DA APLICAÇÃO
+// ======================================================
+// Define se os dados serão obtidos do backend Flask
+// ou se o sistema utilizará apenas o simulador local.
+const USE_BACKEND = true;
+
+// Endereço da API responsável pela comunicação
+// com o FIWARE através do backend Flask.
+const API = 'http://35.188.129.19:5000';
+
+// Intervalo entre cada atualização dos dados.
+const POLL_MS = 2000;
+
+// Tempo máximo sem receber atualização antes de
+// considerar um módulo desconectado.
+const OFFLINE_MS = 15000;
+
+// ======================================================
+// PARÂMETROS E CONFIGURAÇÕES DOS MÓDULOS
+// ======================================================
+
+// Limites considerados normais para cada sensor.
+const TH = {
+  temp:[15,30],
+  hum:[20,70],
+  luz:[0,80],
+  gas:[0,60]
+};
+
+// Unidade exibida para cada métrica.
+const UNIT = {
+  temp:'C',
+  hum:'%',
+  luz:'%',
+  gas:'%'
+};
+
+// Módulos que compõem a colônia.
+const NAMES = [
+  'HABITAT_A',
+  'HABITAT_B',
+  'LAB',
+  'GARAGEM',
+  'ENERGIA'
+];
+
+// Relação entre os módulos do dashboard e as
+// entidades cadastradas no FIWARE.
+const ENTITY = {
+  HABITAT_A:'HabitatA001',
+  HABITAT_B:'HabitatB001',
+  LAB:'Lab001',
+  GARAGEM:'Garagem001',
+  ENERGIA:'Energia001'
+};
+
+// Conversão entre os nomes utilizados na interface
+// e os atributos armazenados no FIWARE.
+const ATTR = {
+  temp:'temperature',
+  hum:'humidity',
+  luz:'luminosity',
+  gas:'gasLevel'
+};
+
+const NW=440,NH=360,cx=NW/2,cy=NH/2-6,R=120;
+
+// ======================================================
+// CONSTRUÇÃO DA REDE DE MÓDULOS
+// ======================================================
+// Os módulos são distribuídos em formato circular
+// para facilitar a visualização da malha de comunicação.
+const modules=NAMES.map((nm,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;
+  return {nm,x:cx+R*Math.cos(a),y:cy+R*Math.sin(a),online:true,forcedOffline:false,
+    temp:22+Math.random()*3,hum:45+Math.random()*8,luz:40+Math.random()*15,gas:10+Math.random()*8,
+    hist:{temp:[],hum:[],luz:[],gas:[]},histReal:{},status:'ok'};});
+
+// Conexões existentes entre os módulos.
+// Utilizadas para desenhar a rede de comunicação.
+const edges = [
+  [0,1],[1,2],[2,3],[3,4],[4,0],
+  [0,2],[1,3],[2,4]
+];
+
+let sel=0,param='temp',t0=Date.now();
+const COL={ok:'#7997E6',alert:'#ffb454',off:'#3a4570'};
+
+// ======================================================
+// CONTROLE DE STATUS
+// ======================================================
+// Verifica se o módulo está offline ou se algum
+// sensor ultrapassou os limites definidos.
+function statusOf(m){if(!m.online)return 'off';for(const p of ['temp','hum','luz','gas']){const[lo,hi]=TH[p];if(m[p]<lo||m[p]>hi)return 'alert';}return 'ok';}
+
+// Identifica quais sensores estão gerando alerta.
+function alertReason(m){const r=[];for(const p of ['temp','hum','luz','gas']){const[lo,hi]=TH[p];if(m[p]<lo||m[p]>hi)r.push(p.toUpperCase());}return r.join('+');}
+
+// Adiciona uma mensagem ao painel de eventos.
+// Mantém apenas os registros mais recentes.
+function log(msg,cls){const el=document.getElementById('log');const ts=new Date().toLocaleTimeString('pt-BR');
+  el.insertAdjacentHTML('afterbegin',`<div><span class="t">${ts}</span> <span class="${cls}">${msg}</span></div>`);while(el.children.length>40)el.lastChild.remove();}
+
+// Atualiza o status do módulo e registra eventos
+// importantes como falhas, alertas e recuperações.
+function applyStatus(m){const prev=m.status;m.status=statusOf(m);
+  if(prev!=='alert'&&m.status==='alert')log(`Anomalia em ${m.nm} (${alertReason(m)})`,'warn');
+  if(prev==='alert'&&m.status==='ok')log(`${m.nm} normalizado`,'ok');
+  if(prev!=='off'&&m.status==='off')log(`FALHA: ${m.nm} fora do ar — recalculando rotas`,'err');
+  if(prev==='off'&&m.status!=='off')log(`${m.nm} reconectado — reincorporado a malha`,'ok');}
+
+// Armazena os últimos valores para construção
+// dos gráficos históricos.
+function pushHist(m){['temp','hum','luz','gas'].forEach(p=>{m.hist[p].push(m.online?m[p]:null);if(m.hist[p].length>60)m.hist[p].shift();});}
+
+// Atualiza o indicador visual que mostra se os
+// dados estão vindo do backend ou do simulador.
+function setMode(t,c){const el=document.getElementById('mode');el.textContent=t;el.style.color=c;}
+
+// ======================================================
+// MODO SIMULAÇÃO
+// ======================================================
+// Utilizado quando o backend não está disponível.
+// Gera pequenas variações para simular sensores reais.
+function simulaTick(){
+  modules.forEach(m=>{m.online=!m.forcedOffline;
+    if(m.online){m.temp+=(Math.random()-.5)*.8;m.hum+=(Math.random()-.5)*1.5;m.luz+=(Math.random()-.5)*3;m.gas+=(Math.random()-.5)*2.5;if(m.gas<2)m.gas=2;}
+    applyStatus(m);pushHist(m);});
+}
+
+// ======================================================
+// INTEGRAÇÃO COM O FIWARE
+// ======================================================
+// Busca os dados atualizados através da API Flask.
+// Caso ocorra qualquer erro, o sistema muda
+// automaticamente para o modo de simulação.
+async function fetchModules(){
+  try{
+    const r=await fetch(API+'/api/modules',{cache:'no-store'});
+    const data=await r.json();const now=Date.now();
+    data.forEach(d=>{const m=modules.find(x=>x.nm===d.nm);if(!m)return;
+      if(d.temp!=null){m.temp=+d.temp;m.hum=+d.hum;m.luz=+d.luz;m.gas=+d.gas;}
+      const tsMs=d.ts?Date.parse(d.ts):null;const stale=tsMs?(now-tsMs>OFFLINE_MS):false;
+      m.online=!m.forcedOffline&&!stale&&d.temp!=null;
+      applyStatus(m);pushHist(m);});
+    setMode('online · fiware','var(--peri)');
+  }catch(e){setMode('simulacao','var(--lav)');simulaTick();}
+}
+
+// Executa um ciclo completo de atualização
+// da interface e dos indicadores.
+async function update(){ if(USE_BACKEND) await fetchModules(); else simulaTick();
+  updateKPI();renderList();renderDetail();drawHist(); }
+
+// Atualiza o indicador de quantidade de módulos online.
+function updateKPI(){const on=modules.filter(m=>m.online).length;const k=document.getElementById('kpi');k.textContent=`${on}/5 nos`;k.style.color=on<5?'var(--warn)':'var(--peri)';}
+
+// Renderiza a lista lateral contendo todos os módulos.
+function renderList(){document.getElementById('modlist').innerHTML=modules.map((m,i)=>{const s=m.status,c=COL[s],lbl=s==='off'?'OFFLINE':s==='alert'?'ALERTA':'OK';
+  return `<div class="mod ${i===sel?'sel':''}" onclick="selectMod(${i})"><span class="dot" style="color:${c}"></span><span class="nm">${m.nm}</span><span class="mini">${m.online?m.temp.toFixed(1)+'C':'--'}</span><span class="tag" style="background:${c}22;color:${c}">${lbl}</span></div>`;}).join('');}
+
+// Define qual módulo está selecionado pelo usuário.
+function selectMod(i){sel=i;renderList();renderDetail();loadHistory();}
+
+// Atualiza os painéis com os detalhes do módulo selecionado.
+function renderDetail(){const m=modules[sel];document.getElementById('detailName').textContent=m.nm+(m.online?'':' · OFFLINE');
+  document.getElementById('gauges').innerHTML=['temp','hum','luz','gas'].map(p=>{const[lo,hi]=TH[p];const v=m.online?m[p]:null;const bad=v!==null&&(v<lo||v>hi);
+    const pct=v===null?0:Math.max(0,Math.min(100,(p==='temp')?(v/40*100):v));const col=v===null?'var(--off)':bad?'var(--warn)':'var(--peri)';
+    const lab={temp:'Temperatura',hum:'Umidade',luz:'Luminosidade',gas:'Gas'}[p];
+    return `<div class="g"><div class="lab">${lab}</div><div class="val" style="color:${col}">${v===null?'--':v.toFixed(p==='temp'?1:0)}<small> ${UNIT[p]}</small></div><div class="bar"><i style="width:${pct}%;background:${col}"></i></div></div>`;}).join('');}
+
+// ======================================================
+// HISTÓRICO DOS SENSORES
+// ======================================================
+// Busca o histórico no STH-Comet através do backend.
+// Caso não exista histórico disponível, utiliza os
+// dados armazenados localmente.
+async function loadHistory(){
+  if(USE_BACKEND){
+    try{const r=await fetch(`${API}/api/history/${ENTITY[modules[sel].nm]}/${ATTR[param]}`,{cache:'no-store'});
+      const pts=await r.json();modules[sel].histReal[param]=pts.map(p=>+p.attrValue);}
+    catch(e){modules[sel].histReal[param]=null;}
+  }
+  drawHist();
+}
+const hc=document.getElementById('hist'),hx=hc.getContext('2d');
+
+// Desenha o gráfico histórico do parâmetro selecionado.
+function drawHist(){const dpr=devicePixelRatio||1,W=hc.clientWidth,H=hc.clientHeight;hc.width=W*dpr;hc.height=H*dpr;hx.setTransform(dpr,0,0,dpr,0,0);hx.clearRect(0,0,W,H);
+  const m=modules[sel];const data=(m.histReal[param]&&m.histReal[param].length)?m.histReal[param]:m.hist[param];
+  const[lo,hi]=TH[param],pad=8,vals=data.filter(v=>v!=null);
+  const minV=Math.min(lo,...vals,lo)-2,maxV=Math.max(hi,...vals,hi)+2,n=data.length;
+  const ylo=H-pad-(lo-minV)/(maxV-minV)*(H-2*pad),yhi=H-pad-(hi-minV)/(maxV-minV)*(H-2*pad);
+  hx.fillStyle='rgba(179,122,212,.08)';hx.fillRect(0,yhi,W,ylo-yhi);
+  hx.strokeStyle='rgba(255,180,84,.3)';hx.setLineDash([4,4]);[yhi,ylo].forEach(y=>{hx.beginPath();hx.moveTo(0,y);hx.lineTo(W,y);hx.stroke();});hx.setLineDash([]);
+  hx.beginPath();let started=false;
+  data.forEach((v,i)=>{if(v==null){started=false;return;}const x=pad+(n<=1?0:i/(n-1))*(W-2*pad),y=H-pad-(v-minV)/(maxV-minV)*(H-2*pad);if(!started){hx.moveTo(x,y);started=true;}else hx.lineTo(x,y);});
+  hx.strokeStyle=m.online?'#7997E6':'#3a4570';hx.lineWidth=2;hx.shadowColor='#7997E6';hx.shadowBlur=8;hx.stroke();hx.shadowBlur=0;}
+
+// Alterna entre temperatura, umidade,
+// luminosidade e nível de gás.
+function pickParam(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');param=el.dataset.p;loadHistory();}
+
+const nc=document.getElementById('net'),nx=nc.getContext('2d');const pulses=[];
+
+// ======================================================
+// VISUALIZAÇÃO DA REDE DE MICÉLIO
+// ======================================================
+
+// Ajusta o canvas para diferentes resoluções.
+function resizeNet(){const dpr=devicePixelRatio||1;nc.width=NW*dpr;nc.height=NH*dpr;nx.setTransform(dpr,0,0,dpr,0,0);}
+
+// Verifica se existe comunicação ativa entre dois nós.
+function edgeActive(e){return modules[e[0]].online&&modules[e[1]].online;}
+
+// Desenha a rede completa de comunicação,
+// incluindo nós, conexões e pulsos de dados.
+function drawNet(){nx.clearRect(0,0,NW,NH);
+  edges.forEach(e=>{const a=modules[e[0]],b=modules[e[1]],act=edgeActive(e);nx.beginPath();nx.moveTo(a.x,a.y);nx.lineTo(b.x,b.y);
+    if(act){nx.strokeStyle='rgba(122,151,230,.4)';nx.lineWidth=1.4;nx.setLineDash([]);}else{nx.strokeStyle='rgba(58,69,112,.55)';nx.lineWidth=1;nx.setLineDash([3,5]);}nx.stroke();nx.setLineDash([]);});
+  if(Math.random()<.25){const act=edges.filter(edgeActive);if(act.length){const e=act[(Math.random()*act.length)|0];pulses.push({e,t:0});}}
+  for(let i=pulses.length-1;i>=0;i--){const p=pulses[i];p.t+=.03;if(p.t>1||!edgeActive(p.e)){pulses.splice(i,1);continue;}
+    const a=modules[p.e[0]],b=modules[p.e[1]],x=a.x+(b.x-a.x)*p.t,y=a.y+(b.y-a.y)*p.t;nx.beginPath();nx.fillStyle='#CAA9F3';nx.shadowColor='#CAA9F3';nx.shadowBlur=10;nx.arc(x,y,2.4,0,7);nx.fill();nx.shadowBlur=0;}
+  modules.forEach((m,i)=>{const c=COL[m.status],r=i===sel?17:14;
+    if(m.online){const pl=2+Math.sin(Date.now()/350+i)*1.5;nx.beginPath();nx.fillStyle=c+'22';nx.arc(m.x,m.y,r+6+pl,0,7);nx.fill();}
+    nx.beginPath();nx.fillStyle=m.online?c+'18':'#0c1138';nx.strokeStyle=c;nx.lineWidth=i===sel?2.5:1.6;nx.shadowColor=c;nx.shadowBlur=m.online?14:0;nx.arc(m.x,m.y,r,0,7);nx.fill();nx.stroke();nx.shadowBlur=0;
+    nx.fillStyle=c;nx.font='700 9px Space Mono';nx.textAlign='center';nx.fillText(m.nm.replace('HABITAT_','HAB-'),m.x,m.y+r+13);
+    if(!m.online){nx.fillStyle='#ff5d6c';nx.font='700 8px Space Mono';nx.fillText('OFFLINE',m.x,m.y+3);}});}
+
+// Permite selecionar um módulo clicando diretamente
+// sobre o nó correspondente na rede.
+nc.addEventListener('click',ev=>{const rect=nc.getBoundingClientRect(),mx=(ev.clientX-rect.left)*NW/rect.width,my=(ev.clientY-rect.top)*NH/rect.height;modules.forEach((m,i)=>{if(Math.hypot(m.x-mx,m.y-my)<20)selectMod(i);});});
+
+// ======================================================
+// FERRAMENTAS DE DEMONSTRAÇÃO
+// ======================================================
+
+// Simula uma falha de comunicação em um módulo.
+function toggleFail(){const m=modules[sel];m.forcedOffline=!m.forcedOffline;update();}
+
+// Simula uma situação crítica de vazamento de gás.
+function spikeGas(){const m=modules[sel];if(!m.online)return;m.gas=85;log(`Gas critico forcado em ${m.nm}`,'warn');update();}
+
+// ======================================================
+// CONTROLE DE TEMPO DA MISSÃO
+// ======================================================
+// Atualiza o cronômetro e o atraso estimado
+// entre Terra e colônia.
+function clock(){const s=((Date.now()-t0)/1000)|0,h=String((s/3600|0)).padStart(2,'0'),mn=String((s/60%60|0)).padStart(2,'0'),sc=String(s%60).padStart(2,'0');
+  document.getElementById('clk').textContent=`${h}:${mn}:${sc}`;const d=12*60+4-((s)%(20*60)),dm=Math.max(4,(d/60|0)),ds=Math.abs(d%60);document.getElementById('delay').textContent=`${dm}m ${String(ds).padStart(2,'0')}s`;}
+const sky=document.getElementById('stars'),sxx=sky.getContext('2d');let star=[];
+
+// ======================================================
+// EFEITOS VISUAIS
+// ======================================================
+
+// Cria as estrelas de fundo.
+function resizeSky(){sky.width=innerWidth;sky.height=innerHeight;star=Array.from({length:120},()=>({x:Math.random()*sky.width,y:Math.random()*sky.height,r:Math.random()*1.3,a:Math.random()}));}
+
+// Atualiza a animação do céu estrelado.
+function drawSky(){sxx.clearRect(0,0,sky.width,sky.height);star.forEach(s=>{s.a+=(Math.random()-.5)*.05;s.a=Math.max(.1,Math.min(1,s.a));sxx.fillStyle=`rgba(202,169,243,${s.a*.55})`;sxx.beginPath();sxx.arc(s.x,s.y,s.r,0,7);sxx.fill();});}
+
+// ======================================================
+// INICIALIZAÇÃO DO DASHBOARD
+// ======================================================
+// Gera histórico inicial para evitar gráficos vazios.
+for(let k=0;k<60;k++){modules.forEach(m=>{['temp','hum','luz','gas'].forEach(p=>{m.hist[p].push(m[p]+(Math.random()-.5)*4);});});}
+
+// Configuração inicial da interface.
+resizeNet();
+resizeSky();
+renderList();
+renderDetail();
+drawHist();
+loadHistory();
+
+// Recalcula elementos visuais quando a janela muda de tamanho.
+addEventListener('resize',()=>{
+  resizeNet();
+  resizeSky();
+  drawHist();
+});
+
+// Inicia atualização periódica dos dados.
+update();
+setInterval(update,POLL_MS);
+setInterval(clock,1000);
+
+// Loop principal responsável pelas animações.
+(function raf(){
+  drawNet();
+  drawSky();
+  requestAnimationFrame(raf);
+})();
+
+// Registro inicial exibido no painel de eventos.
+log(
+  USE_BACKEND
+  ?'Conectando ao FIWARE...'
+  :'Modo simulacao ativo',
+  'ok'
+);
+</script>
