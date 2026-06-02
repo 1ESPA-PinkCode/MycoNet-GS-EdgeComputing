@@ -19,7 +19,7 @@ Este repositório contém a camada de **Edge Computing** e a **integração com 
 
 ## Arquitetura
 
-
+<img width="1300" height="1610" alt="myconet_arquitetura" src="https://github.com/user-attachments/assets/3ee090ac-cf21-4eea-9573-1aac649df3f2" />
 
 A solução é organizada em três camadas:
 
@@ -63,7 +63,7 @@ ESP32 DevKit simulado no Wokwi, com:
 
 ### Circuito
 
-
+<img width="875" height="785" alt="image" src="https://github.com/user-attachments/assets/66231a55-6465-4cb4-af51-a479d1b778ed" />
 
 > Montagem de um módulo no simulador Wokwi (ESP32 + DHT22 + LDR + MQ-2 + OLED + buzzer + LEDs).
 
@@ -130,8 +130,6 @@ const API = 'http://<IP_DA_VM>:5000';
 ```
 
 Abra o arquivo no navegador. O selo no topo indica o modo (`online · fiware` ou `simulacao`).
-
-> Para apresentações offline, defina `USE_BACKEND = false`: o dashboard roda 100% com dados simulados, com a mesma interface.
 
 ---
 
