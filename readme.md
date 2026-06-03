@@ -9,7 +9,7 @@ Global Solution 2026 · FIAP · Engenharia de Software · Equipe **PINK CODE**
 
 ## Sobre o projeto
 
-O MycoNet é uma plataforma de telemetria e comunicação distribuída para os módulos de uma colônia espacial (ou para a cápsula Dragon, no recorte da Global Solution). Cada módulo monitora seu ambiente, transmite os dados por MQTT e — inspirado nas redes de micélio dos fungos — **detecta sozinho quando um módulo vizinho cai, avisa os demais e se recupera**, sem intervenção humana.
+O MycoNet é uma plataforma de telemetria e comunicação distribuída para os módulos de uma colônia espacial. Cada módulo monitora seu ambiente, transmite os dados por MQTT e — inspirado nas redes de micélio dos fungos — **detecta sozinho quando um módulo vizinho cai, avisa os demais e se recupera**, sem intervenção humana.
 
 A inspiração vem da natureza: redes de micélio conectam florestas inteiras sem nenhum ponto central de controle e se reorganizam quando parte da rede é danificada. O MycoNet traduz esse comportamento para engenharia de software aplicada a ambientes onde o delay de comunicação com a Terra (4 a 24 minutos) torna o controle centralizado inviável.
 
